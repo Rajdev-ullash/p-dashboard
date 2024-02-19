@@ -4,7 +4,7 @@ import { tagTypes } from "../tag-types";
 
 const PRODUCT_URL = "/products";
 
-export const productApi = baseApi.injectEndpoints({
+export const productApi: any = baseApi.injectEndpoints({
   endpoints: (build) => ({
     addProductWithFormData: build.mutation({
       query: (data) => ({
@@ -15,52 +15,64 @@ export const productApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.product],
     }),
-
-    // admins: build.query({
-    //   query: (arg: Record<string, any>) => {
-    //     return {
-    //       url: ADMIN_URL,
-    //       method: "GET",
-    //       params: arg,
-    //     };
-    //   },
-    //   transformResponse: (response: IAdmin[], meta: IMeta) => {
-    //     return {
-    //       admins: response,
-    //       meta,
-    //     };
-    //   },
-    //   providesTags: [tagTypes.admin],
-    // }),
-    // admin: build.query({
-    //   query: (id: string | string[] | undefined) => ({
-    //     url: `${ADMIN_URL}/${id}`,
-    //     method: "GET",
-    //   }),
-    //   providesTags: [tagTypes.admin],
-    // }),
-    // updateAdmin: build.mutation({
-    //   query: (data) => ({
-    //     url: `${ADMIN_URL}/${data.id}`,
-    //     method: "PATCH",
-    //     data: data.body,
-    //   }),
-    //   invalidatesTags: [tagTypes.admin],
-    // }),
-    // deleteAdmin: build.mutation({
-    //   query: (id) => ({
-    //     url: `${ADMIN_URL}/${id}`,
-    //     method: "DELETE",
-    //   }),
-    //   invalidatesTags: [tagTypes.admin],
-    // }),
+    addProductWithExcel: build.mutation({
+      query: (data) => ({
+        url: `${PRODUCT_URL}/upload-excel`,
+        method: "POST",
+        data,
+        contentType: "multipart/form-data",
+      }),
+      invalidatesTags: [tagTypes.product],
+    }),
+    products: build.query({
+      query: (arg: Record<string, any>) => {
+        return {
+          url: PRODUCT_URL,
+          method: "GET",
+          params: arg,
+        };
+      },
+      transformResponse: (response: IProduct[], meta: IMeta) => {
+        return {
+          products: response,
+          meta,
+        };
+      },
+      providesTags: [tagTypes.product],
+    }),
+    product: build.query({
+      query: (id: string | string[] | undefined) => ({
+        url: `${PRODUCT_URL}/${id}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.product],
+    }),
+    updateProduct: build.mutation({
+      query: (data) => ({
+        url: `${PRODUCT_URL}/${data.id}`,
+        method: "PATCH",
+        data: data.body,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }),
+      invalidatesTags: [tagTypes.product],
+    }),
+    deleteProduct: build.mutation({
+      query: (id) => ({
+        url: `${PRODUCT_URL}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [tagTypes.product],
+    }),
   }),
 });
 
 export const {
-  //   useAdminsQuery,
-  //   useAdminQuery,
+  useProductsQuery,
+  useProductQuery,
   useAddProductWithFormDataMutation,
-  //   useUpdateAdminMutation,
-  //   useDeleteAdminMutation,
+  useAddProductWithExcelMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
 } = productApi;

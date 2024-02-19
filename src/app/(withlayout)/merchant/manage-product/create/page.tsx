@@ -8,11 +8,14 @@ import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import UploadImage from "@/components/ui/UploadImage";
 import { useCategoriesQuery } from "@/redux/api/categoryApi";
 import { useAddProductWithFormDataMutation } from "@/redux/api/productApi";
+import { productSchema } from "@/schemas/product";
 import { ICategory } from "@/types";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row, UploadFile, message } from "antd";
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 const page = () => {
+  const router = useRouter();
   const [fileArray, setFileArray] = useState([]);
   const { data, isLoading } = useCategoriesQuery({ limit: 100, page: 1 });
   //@ts-ignore
@@ -29,11 +32,18 @@ const page = () => {
 
   const [addProductWithFormData] = useAddProductWithFormDataMutation();
   const onSubmit = async (data: any) => {
-    // console.log(data);
+    console.log(data);
     console.log(fileArray);
     const formData = new FormData();
     formData.append("title", data["title"]);
     formData.append("description", data["description"]);
+    formData.append("price", data["price"]);
+    formData.append("categoryId", data["categoryId"]);
+    formData.append("stock", data["stock"]);
+    formData.append("unit", data["unit"]);
+    formData.append("sell", data["sell"]);
+    formData.append("productTags", data["productTags"]);
+    formData.append("discount", data["discount"]);
     // formData.append('title', data["title"]);
 
     fileArray.forEach((file) => {
@@ -41,11 +51,19 @@ const page = () => {
       formData.append("productImages", file);
     });
     // formData.append("discount", data["discount"]);
+    message.loading("Creating.....");
 
     try {
-      await addProductWithFormData(formData);
-      // console.log(formData);
-      message.success("Admin created successfully!");
+      const data: any = await addProductWithFormData(formData);
+      console.log(data);
+      if (data?.data?.success === true) {
+        setFileArray([]);
+
+        message.success({
+          content: data?.data?.message,
+          onClose: () => router.push("/merchant/manage-product"),
+        });
+      }
     } catch (err: any) {
       console.error(err.message);
     }
@@ -176,8 +194,8 @@ const page = () => {
                   marginBottom: "10px",
                 }}
               >
-                {/* <UploadImage setFileArray={setFileArray} /> */}
-                <ImageUpload setFileArray={setFileArray} />
+                <UploadImage setFileArray={setFileArray} />
+                {/* <ImageUpload setFileArray={setFileArray} /> */}
               </Col>
               <Col
                 className="gutter-row"
